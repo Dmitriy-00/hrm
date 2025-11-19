@@ -7,6 +7,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useVacancies } from '@/lib/hooks/useVacancies';
 import { Briefcase, Building2, MapPin, DollarSign, Search, Loader2, Calendar } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { SkeletonList } from '@/components/ui/Skeleton';
 
 export default function VacanciesPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,137 +31,132 @@ export default function VacanciesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Вакансии</h1>
-          <p className="text-gray-600 mt-1">
-            {data?.total || 0} открытых вакансий
-          </p>
-        </div>
+      <div className="text-center space-y-2 animate-fade-in">
+        <h1 className="text-4xl font-bold gradient-text">Вакансии</h1>
+        <p className="text-xl text-gray-600">
+          {data?.total || 0} открытых вакансий
+        </p>
       </div>
 
       {/* Search */}
-      <div className="bg-white rounded-lg shadow p-4">
+      <Card variant="glass" className="animate-slide-up">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
             type="text"
             placeholder="Поиск по должности или компании..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-12 pr-4 py-3 bg-transparent border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 placeholder-gray-500"
           />
         </div>
-      </div>
+      </Card>
 
       {/* Loading state */}
-      {isLoading && (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        </div>
-      )}
+      {isLoading && <SkeletonList count={6} />}
 
       {/* Vacancies list */}
       {!isLoading && filteredVacancies && filteredVacancies.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredVacancies.map((vacancy) => (
-            <Link
-              key={vacancy.id}
-              href={`/vacancies/${vacancy.id}`}
-              className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 group"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                    <Briefcase className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {vacancy.position_name}
-                    </h3>
-                    <p className="text-sm text-gray-600">{vacancy.grade || 'Any level'}</p>
+          {filteredVacancies.map((vacancy, index) => (
+            <Link key={vacancy.id} href={`/vacancies/${vacancy.id}`}>
+              <Card
+                variant="elevated"
+                hover
+                className="h-full animate-scale-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-md">
+                      <Briefcase className="h-7 w-7 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {vacancy.position_name}
+                      </h3>
+                      <Badge variant="success" size="sm">
+                        {vacancy.grade || 'Any level'}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Company */}
-              <div className="flex items-center text-gray-600 mb-3">
-                <Building2 className="h-4 w-4 mr-2" />
-                <span className="font-medium">{vacancy.company_name}</span>
-              </div>
+                {/* Company */}
+                <div className="flex items-center text-gray-700 mb-4">
+                  <Building2 className="h-4 w-4 mr-2 text-gray-400" />
+                  <span className="font-medium">{vacancy.company_name}</span>
+                </div>
 
-              {/* Info */}
-              <div className="space-y-2">
-                {vacancy.locations && vacancy.locations.length > 0 && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    {vacancy.locations[0].city || 'Remote'}
-                    {vacancy.locations[0].remote && ' (Remote)'}
-                    {vacancy.locations.length > 1 && ` +${vacancy.locations.length - 1}`}
-                  </div>
-                )}
+                {/* Info */}
+                <div className="space-y-2.5">
+                  {vacancy.locations && vacancy.locations.length > 0 && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <MapPin className="h-4 w-4 mr-2 text-gray-400" />
+                      {vacancy.locations[0].city || 'Remote'}
+                      {vacancy.locations[0].remote && ' (Remote)'}
+                      {vacancy.locations.length > 1 && ` +${vacancy.locations.length - 1}`}
+                    </div>
+                  )}
 
-                {vacancy.salary_min && vacancy.salary_max && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    {vacancy.salary_min.toLocaleString()}-{vacancy.salary_max.toLocaleString()} {vacancy.salary_currency}
-                    {vacancy.salary_negotiable && ' (обсуждаемо)'}
-                  </div>
-                )}
+                  {vacancy.salary_min && vacancy.salary_max && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <DollarSign className="h-4 w-4 mr-2 text-gray-400" />
+                      {vacancy.salary_min.toLocaleString()}-{vacancy.salary_max.toLocaleString()} {vacancy.salary_currency}
+                      {vacancy.salary_negotiable && ' (обсуждаемо)'}
+                    </div>
+                  )}
 
-                {(vacancy.min_experience_years || vacancy.max_experience_years) && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    {vacancy.min_experience_years && `от ${vacancy.min_experience_years}`}
-                    {vacancy.min_experience_years && vacancy.max_experience_years && ' до '}
-                    {vacancy.max_experience_years && `${vacancy.max_experience_years}`} лет опыта
-                  </div>
-                )}
-              </div>
+                  {(vacancy.min_experience_years || vacancy.max_experience_years) && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                      {vacancy.min_experience_years && `от ${vacancy.min_experience_years}`}
+                      {vacancy.min_experience_years && vacancy.max_experience_years && ' до '}
+                      {vacancy.max_experience_years && `${vacancy.max_experience_years}`} лет опыта
+                    </div>
+                  )}
+                </div>
 
-              {/* Requirements */}
-              {vacancy.requirements && vacancy.requirements.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-xs text-gray-500 mb-2">Требования:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {vacancy.requirements.slice(0, 4).map((req) => (
-                      <span
-                        key={req.id}
-                        className={`px-2 py-1 text-xs rounded-md ${
+                {/* Requirements */}
+                {vacancy.requirements && vacancy.requirements.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-gray-500 mb-2">Требования:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {vacancy.requirements.slice(0, 4).map((req) => {
+                        const variant =
                           req.importance === 'required'
-                            ? 'bg-red-50 text-red-700'
+                            ? 'danger'
                             : req.importance === 'nice_to_have'
-                            ? 'bg-blue-50 text-blue-700'
-                            : 'bg-gray-50 text-gray-700'
-                        }`}
-                      >
-                        {req.technology?.name || req.technology_id}
-                      </span>
-                    ))}
-                    {vacancy.requirements.length > 4 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
-                        +{vacancy.requirements.length - 4}
-                      </span>
-                    )}
+                            ? 'info'
+                            : 'neutral';
+                        return (
+                          <Badge key={req.id} variant={variant as any} size="sm">
+                            {req.technology?.name || req.technology_id}
+                          </Badge>
+                        );
+                      })}
+                      {vacancy.requirements.length > 4 && (
+                        <Badge variant="neutral" size="sm">
+                          +{vacancy.requirements.length - 4}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Status badge */}
-              <div className="mt-4 pt-4 border-t">
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    vacancy.status === 'active'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {vacancy.status === 'active' ? 'Активна' : vacancy.status}
-                </span>
-              </div>
+                {/* Status badge */}
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <Badge
+                    variant={vacancy.status === 'active' ? 'success' : 'neutral'}
+                    size="sm"
+                  >
+                    {vacancy.status === 'active' ? 'Активна' : vacancy.status}
+                  </Badge>
+                </div>
+              </Card>
             </Link>
           ))}
         </div>
@@ -165,17 +164,17 @@ export default function VacanciesPage() {
 
       {/* Empty state */}
       {!isLoading && (!filteredVacancies || filteredVacancies.length === 0) && (
-        <div className="text-center py-12 bg-white rounded-lg shadow">
-          <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Вакансии не найдены
-          </h3>
-          <p className="text-gray-600">
-            {searchTerm
-              ? 'Попробуйте изменить параметры поиска'
-              : 'Начните с добавления первой вакансии'}
-          </p>
-        </div>
+        <Card variant="elevated">
+          <EmptyState
+            icon={Briefcase}
+            title="Вакансии не найдены"
+            description={
+              searchTerm
+                ? 'Попробуйте изменить параметры поиска или сбросить фильтры'
+                : 'Начните с добавления первой вакансии в систему'
+            }
+          />
+        </Card>
       )}
     </div>
   );
