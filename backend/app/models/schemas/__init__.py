@@ -4,6 +4,19 @@ from app.models.schemas.job_title import JobTitleCreate, JobTitleUpdate, JobTitl
 from app.models.schemas.technology import TechnologyCreate, TechnologyUpdate, TechnologyResponse
 from app.models.schemas.standard import StandardCreate, StandardUpdate, StandardResponse
 from app.models.schemas.industry import IndustryCreate, IndustryUpdate, IndustryResponse
+from app.models.schemas.candidate import (
+    CandidateCreate,
+    CandidateUpdate,
+    CandidateResponse,
+    CandidateListResponse,
+    CandidateSearchParams,
+)
+from app.models.schemas.workplace import (
+    WorkplaceCreate,
+    WorkplaceUpdate,
+    WorkplaceResponse,
+    WorkplaceListResponse,
+)
 
 __all__ = [
     "JobTitleCreate",
@@ -18,4 +31,13 @@ __all__ = [
     "IndustryCreate",
     "IndustryUpdate",
     "IndustryResponse",
+    "CandidateCreate",
+    "CandidateUpdate",
+    "CandidateResponse",
+    "CandidateListResponse",
+    "CandidateSearchParams",
+    "WorkplaceCreate",
+    "WorkplaceUpdate",
+    "WorkplaceResponse",
+    "WorkplaceListResponse",
 ]
