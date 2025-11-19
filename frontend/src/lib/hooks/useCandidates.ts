@@ -61,6 +61,20 @@ export const useUpdateCandidate = () => {
   });
 };
 
+export const useDeleteCandidate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/candidates/${id}`);
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+    },
+  });
+};
+
 export const useSearchCandidates = () => {
   return useMutation({
     mutationFn: async (searchParams: any) => {
