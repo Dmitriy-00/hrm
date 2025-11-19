@@ -110,6 +110,41 @@ npm run dev
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
+### Основные эндпоинты
+
+#### Онтология
+- `GET /api/v1/job-titles` - Список должностей
+- `GET /api/v1/technologies` - Список технологий
+- `GET /api/v1/standards` - Список стандартов
+- `GET /api/v1/industries` - Список индустрий
+
+#### Кандидаты
+- `POST /api/v1/candidates` - Создать кандидата
+- `GET /api/v1/candidates` - Список кандидатов
+- `POST /api/v1/candidates/search` - Расширенный поиск
+- `GET /api/v1/candidates/{id}` - Получить кандидата
+- `PATCH /api/v1/candidates/{id}` - Обновить кандидата
+
+#### История работы
+- `POST /api/v1/workplaces` - Добавить место работы
+- `GET /api/v1/workplaces/candidate/{id}` - История кандидата
+
+#### Вакансии
+- `POST /api/v1/vacancies` - Создать вакансию
+- `GET /api/v1/vacancies` - Список вакансий
+- `POST /api/v1/vacancies/search` - Расширенный поиск
+- `PUT /api/v1/vacancies/{id}/requirements` - Обновить требования
+
+#### Матчинг и скоринг
+- `POST /api/v1/matching/score` - Рассчитать скор для пары кандидат-вакансия
+- `GET /api/v1/matching/candidates/{id}/vacancies` - Найти вакансии для кандидата
+- `GET /api/v1/matching/vacancies/{id}/candidates` - Найти кандидатов для вакансии
+- `POST /api/v1/matching/batch-score` - Batch scoring с фильтрами
+
+Подробная документация в файлах:
+- [backend/docs/SCORING.md](backend/docs/SCORING.md) - Алгоритм скоринга
+- [backend/docs/MIGRATIONS.md](backend/docs/MIGRATIONS.md) - Работа с миграциями
+
 ## 🗄️ База данных
 
 ### Основные таблицы
@@ -127,15 +162,41 @@ npm run dev
 ### Миграции
 
 ```bash
-# Создать новую миграцию
-alembic revision --autogenerate -m "description"
-
 # Применить миграции
 alembic upgrade head
 
 # Откатить миграцию
 alembic downgrade -1
+
+# Создать новую миграцию
+alembic revision --autogenerate -m "description"
+
+# Просмотреть историю
+alembic history
+
+# Проверить текущую версию
+alembic current
 ```
+
+### Заполнение тестовыми данными
+
+```bash
+cd backend
+
+# Онтология (должности, технологии, стандарты, индустрии)
+python scripts/seed_ontology.py
+
+# Тестовые кандидаты (3 кандидата с полными профилями)
+python scripts/seed_candidates.py
+
+# Тестовые вакансии (3 вакансии с требованиями)
+python scripts/seed_vacancies.py
+
+# Тест скоринга
+python scripts/test_scoring.py
+```
+
+Подробная документация: [backend/docs/MIGRATIONS.md](backend/docs/MIGRATIONS.md)
 
 ## 🧪 Тестирование
 
@@ -155,14 +216,19 @@ npm run test
 
 ## 📦 Модули системы
 
-### MVP (Фаза 1) ✅
+### MVP (Фаза 1) - В РАЗРАБОТКЕ
 - [x] Базовая структура проекта
+- [x] База данных и миграции (Alembic)
+- [x] Онтология (должности, технологии, стандарты, индустрии)
+- [x] CRUD для кандидатов + история работы
+- [x] CRUD для вакансий + требования
+- [x] Расширенный поиск (по технологиям, опыту, локации, зарплате)
+- [x] Полный скоринг (8 компонентов: технологии, опыт, навыки, стандарты, индустрия, языки, локация, зарплата)
+- [x] API для матчинга кандидатов и вакансий
+- [x] Seed скрипты для тестовых данных
 - [ ] Аутентификация (JWT)
-- [ ] CRUD для кандидатов
-- [ ] CRUD для вакансий
-- [ ] Простой поиск
-- [ ] Базовый скоринг (технологии + опыт)
 - [ ] UI для профиля кандидата
+- [ ] UI для вакансий и матчинга
 
 ### Фаза 2
 - [ ] Расширенный скоринг (все параметры)

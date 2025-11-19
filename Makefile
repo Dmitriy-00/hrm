@@ -1,16 +1,33 @@
-.PHONY: help build up down logs clean install-backend install-frontend migrate test
+.PHONY: help build up down logs clean install-backend install-frontend migrate seed test
 
 help:
 	@echo "HRM Platform - Available commands:"
+	@echo ""
+	@echo "Docker commands:"
 	@echo "  make build              - Build all Docker containers"
 	@echo "  make up                 - Start all services"
 	@echo "  make down               - Stop all services"
 	@echo "  make logs               - Show logs from all services"
 	@echo "  make clean              - Remove all containers and volumes"
+	@echo ""
+	@echo "Development commands:"
 	@echo "  make install-backend    - Install backend dependencies"
 	@echo "  make install-frontend   - Install frontend dependencies"
+	@echo "  make dev-backend        - Run backend development server"
+	@echo "  make dev-frontend       - Run frontend development server"
+	@echo ""
+	@echo "Database commands:"
 	@echo "  make migrate            - Run database migrations"
-	@echo "  make test               - Run tests"
+	@echo "  make migrate-create     - Create new migration"
+	@echo "  make seed               - Populate database with test data"
+	@echo "  make seed-ontology      - Seed ontology data only"
+	@echo "  make seed-candidates    - Seed candidates only"
+	@echo "  make seed-vacancies     - Seed vacancies only"
+	@echo ""
+	@echo "Testing commands:"
+	@echo "  make test-backend       - Run backend tests"
+	@echo "  make test-frontend      - Run frontend tests"
+	@echo "  make test-scoring       - Test scoring algorithm"
 
 build:
 	docker-compose build
@@ -55,3 +72,24 @@ dev-backend:
 
 dev-frontend:
 	cd frontend && npm run dev
+
+# Database seeding
+seed: seed-ontology seed-candidates seed-vacancies
+	@echo "✅ Database seeded with test data"
+
+seed-ontology:
+	cd backend && python scripts/seed_ontology.py
+
+seed-candidates:
+	cd backend && python scripts/seed_candidates.py
+
+seed-vacancies:
+	cd backend && python scripts/seed_vacancies.py
+
+test-scoring:
+	cd backend && python scripts/test_scoring.py
+
+# Setup from scratch
+setup: install-backend migrate seed
+	@echo "✅ Backend setup complete!"
+	@echo "Run 'make dev-backend' to start the server"

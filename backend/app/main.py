@@ -18,10 +18,57 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description=settings.DESCRIPTION,
+    description="""
+    ## HRM Platform API - Intelligent Candidate-Vacancy Matching System
+
+    Автоматизированная система подбора IT-специалистов с интеллектуальным скорингом
+    на основе семантического анализа навыков, технологий и опыта.
+
+    ### Основные возможности
+
+    * 🎯 **Интеллектуальный скоринг** - многоуровневая оценка соответствия (8 компонентов)
+    * 🔍 **Расширенный поиск** - по технологиям, опыту, локации, зарплате
+    * 📊 **Онтология компетенций** - иерархическая структура должностей и технологий
+    * 🚀 **Real-time матчинг** - подбор кандидатов для вакансий и наоборот
+    * 📈 **Аналитика** - insights, highlights и concerns для каждого матча
+
+    ### Компоненты скоринга
+
+    1. **Technologies** (40%) - соответствие технологий с учетом важности
+    2. **Experience** (20%) - годы опыта работы
+    3. **Skills** (15%) - soft skills и компетенции
+    4. **Standards** (10%) - методологии разработки
+    5. **Industry** (5%) - релевантный опыт в индустрии
+    6. **Languages** (5%) - владение языками
+    7. **Location** (3%) - совместимость локации
+    8. **Salary** (2%) - соответствие зарплатных ожиданий
+
+    ### Документация
+
+    * [Алгоритм скоринга](https://github.com/yourusername/hrm/blob/main/backend/docs/SCORING.md)
+    * [Работа с миграциями](https://github.com/yourusername/hrm/blob/main/backend/docs/MIGRATIONS.md)
+    """,
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    openapi_tags=[
+        {"name": "Root", "description": "Root and health check endpoints"},
+        {"name": "Job Titles", "description": "Ontology: Job titles hierarchy"},
+        {"name": "Technologies", "description": "Ontology: Technologies and tools"},
+        {"name": "Standards", "description": "Ontology: Development standards"},
+        {"name": "Industries", "description": "Ontology: Industry classification"},
+        {"name": "Candidates", "description": "Candidate profile management"},
+        {"name": "Workplaces", "description": "Work history and experience"},
+        {"name": "Vacancies", "description": "Job vacancy management"},
+        {"name": "Matching", "description": "Intelligent candidate-vacancy matching and scoring"},
+    ],
+    contact={
+        "name": "HRM Platform Team",
+        "email": "support@hrm-platform.com",
+    },
+    license_info={
+        "name": "MIT",
+    },
 )
 
 # Configure CORS
