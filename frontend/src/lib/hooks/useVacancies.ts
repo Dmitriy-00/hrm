@@ -61,6 +61,20 @@ export const useUpdateVacancy = () => {
   });
 };
 
+export const useDeleteVacancy = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/vacancies/${id}`);
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vacancies'] });
+    },
+  });
+};
+
 export const useSearchVacancies = () => {
   return useMutation({
     mutationFn: async (searchParams: any) => {
