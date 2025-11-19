@@ -5,8 +5,9 @@
 'use client';
 
 import { use, useState } from 'react';
-import { ArrowLeft, ArrowRight, Filter, SortDesc, Eye } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Filter, SortDesc, Eye, CheckSquare, Square } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -24,9 +25,12 @@ interface PageProps {
 export default function VacancyCandidatesPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const { id: vacancyId } = resolvedParams;
+  const router = useRouter();
 
   const [minScore, setMinScore] = useState(60);
   const [limit, setLimit] = useState(20);
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
+  const MAX_SELECTION = 5;
 
   const { data: vacancy, isLoading: vacancyLoading } = useVacancy(vacancyId);
   const { data: recommendations, isLoading: recsLoading } = useMatchingRecommendations(
@@ -59,7 +63,7 @@ export default function VacancyCandidatesPage({ params }: PageProps) {
       case 'highly_recommend':
         return <Badge variant="success">Настоятельно рекомендуется</Badge>;
       case 'recommend':
-        return <Badge variant="primary">Рекомендуется</Badge>;
+        return <Badge variant="info">Рекомендуется</Badge>;
       case 'consider':
         return <Badge variant="warning">Рассмотреть</Badge>;
       default:
@@ -72,12 +76,33 @@ export default function VacancyCandidatesPage({ params }: PageProps) {
       case 'excellent':
         return <Badge variant="success" size="sm">Отлично</Badge>;
       case 'good':
-        return <Badge variant="primary" size="sm">Хорошо</Badge>;
+        return <Badge variant="info" size="sm">Хорошо</Badge>;
       case 'fair':
         return <Badge variant="warning" size="sm">Удовлетворительно</Badge>;
       default:
         return <Badge variant="danger" size="sm">Плохо</Badge>;
     }
+  };
+
+  const handleToggleCandidate = (candidateId: string) => {
+    setSelectedCandidates((prev) => {
+      if (prev.includes(candidateId)) {
+        return prev.filter((id) => id !== candidateId);
+      } else if (prev.length < MAX_SELECTION) {
+        return [...prev, candidateId];
+      }
+      return prev;
+    });
+  };
+
+  const handleCompareSelected = () => {
+    if (selectedCandidates.length >= 2) {
+      router.push(`/vacancies/${vacancyId}/compare?candidates=${selectedCandidates.join(',')}`);
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedCandidates([]);
   };
 
   return (
@@ -155,45 +180,112 @@ export default function VacancyCandidatesPage({ params }: PageProps) {
             Найдено <span className="font-semibold text-gray-900">{recommendations.total_found}</span> кандидатов
             с минимальным скором {recommendations.min_score_threshold}%
           </p>
+          {selectedCandidates.length > 0 && (
+            <p className="text-sm text-blue-600 font-medium">
+              Выбрано {selectedCandidates.length} из {MAX_SELECTION}
+            </p>
+          )}
         </div>
+      )}
+
+      {/* Selection Actions Bar */}
+      {selectedCandidates.length > 0 && (
+        <Card variant="elevated" className="animate-slide-up bg-blue-50 border-blue-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <p className="text-sm font-semibold text-blue-900">
+                {selectedCandidates.length} {selectedCandidates.length === 1 ? 'кандидат выбран' : 'кандидата выбрано'}
+              </p>
+              {selectedCandidates.length < 2 && (
+                <p className="text-xs text-blue-700">
+                  Выберите минимум 2 кандидата для сравнения
+                </p>
+              )}
+              {selectedCandidates.length >= MAX_SELECTION && (
+                <p className="text-xs text-blue-700">
+                  Достигнут лимит выбора
+                </p>
+              )}
+            </div>
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm" onClick={handleClearSelection}>
+                Очистить
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleCompareSelected}
+                disabled={selectedCandidates.length < 2}
+              >
+                Сравнить
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        </Card>
       )}
 
       {/* Candidates List */}
       {recommendations && recommendations.candidates.length > 0 ? (
         <div className="space-y-4">
-          {recommendations.candidates.map((candidate, index) => (
-            <Card
-              key={candidate.candidate_id}
-              variant="elevated"
-              hover
-              className="animate-slide-up"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className="flex items-start space-x-6">
-                {/* Score Gauge */}
-                <div className="flex-shrink-0">
-                  <ScoreGauge score={candidate.score} size="md" showValue />
-                </div>
+          {recommendations.candidates.map((candidate, index) => {
+            const isSelected = selectedCandidates.includes(candidate.candidate_id);
+            const canSelect = selectedCandidates.length < MAX_SELECTION || isSelected;
 
-                {/* Candidate Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-1">
-                        {candidate.candidate_name}
-                      </h3>
-                      <div className="flex items-center space-x-2">
-                        {getRecommendationBadge(candidate.recommendation)}
-                        {getMatchQualityBadge(candidate.match_quality)}
-                      </div>
-                    </div>
-                    <Link href={`/matching/${candidate.candidate_id}/${vacancyId}`}>
-                      <Button variant="primary" size="sm">
-                        <Eye className="h-4 w-4 mr-2" />
-                        Подробнее
-                      </Button>
-                    </Link>
+            return (
+              <Card
+                key={candidate.candidate_id}
+                variant="elevated"
+                hover
+                className={`animate-slide-up ${isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`}
+              >
+                <div className="flex items-start space-x-6">
+                  {/* Selection Checkbox */}
+                  <button
+                    onClick={() => handleToggleCandidate(candidate.candidate_id)}
+                    disabled={!canSelect}
+                    className={`flex-shrink-0 mt-2 ${
+                      !canSelect ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-110 transition-transform'
+                    }`}
+                    title={
+                      !canSelect
+                        ? `Можно выбрать максимум ${MAX_SELECTION} кандидатов`
+                        : isSelected
+                        ? 'Убрать из сравнения'
+                        : 'Добавить к сравнению'
+                    }
+                  >
+                    {isSelected ? (
+                      <CheckSquare className="h-6 w-6 text-blue-600" />
+                    ) : (
+                      <Square className="h-6 w-6 text-gray-400" />
+                    )}
+                  </button>
+
+                  {/* Score Gauge */}
+                  <div className="flex-shrink-0">
+                    <ScoreGauge score={candidate.score} size="md" showValue />
                   </div>
+
+                  {/* Candidate Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-1">
+                          {candidate.candidate_name}
+                        </h3>
+                        <div className="flex items-center space-x-2">
+                          {getRecommendationBadge(candidate.recommendation)}
+                          {getMatchQualityBadge(candidate.match_quality)}
+                        </div>
+                      </div>
+                      <Link href={`/matching/${candidate.candidate_id}/${vacancyId}`}>
+                        <Button variant="primary" size="sm">
+                          <Eye className="h-4 w-4 mr-2" />
+                          Подробнее
+                        </Button>
+                      </Link>
+                    </div>
 
                   {/* Highlights */}
                   {candidate.highlights.length > 0 && (
@@ -231,7 +323,8 @@ export default function VacancyCandidatesPage({ params }: PageProps) {
                 </div>
               </div>
             </Card>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <Card variant="elevated" className="text-center p-12">
@@ -244,8 +337,8 @@ export default function VacancyCandidatesPage({ params }: PageProps) {
         </Card>
       )}
 
-      {/* Compare Button */}
-      {recommendations && recommendations.candidates.length > 1 && (
+      {/* Compare Info Card - Show when no candidates selected */}
+      {recommendations && recommendations.candidates.length > 1 && selectedCandidates.length === 0 && (
         <Card variant="gradient" className="animate-scale-in">
           <div className="flex items-center justify-between">
             <div>
@@ -253,13 +346,15 @@ export default function VacancyCandidatesPage({ params }: PageProps) {
                 Сравнить кандидатов
               </h3>
               <p className="text-white/90 text-sm">
-                Выберите несколько кандидатов для детального сравнения
+                Используйте чекбоксы для выбора кандидатов для детального сравнения
               </p>
             </div>
-            <Button variant="secondary" size="lg">
-              Выбрать для сравнения
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
+            <div className="flex items-center space-x-2">
+              <CheckSquare className="h-6 w-6 text-white/80" />
+              <span className="text-white/90 text-sm">
+                Выберите 2-{MAX_SELECTION} кандидатов
+              </span>
+            </div>
           </div>
         </Card>
       )}
