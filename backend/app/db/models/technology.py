@@ -49,7 +49,7 @@ class Technology(Base):
     )  # IDs of related techs
     difficulty_level = Column(Integer, default=3)  # 1-5
     popularity_score = Column(Integer, default=50)  # 0-100
-    metadata = Column(JSON, default={})  # official_site, docs, github, version
+    tech_metadata = Column(JSON, default={})  # official_site, docs, github, version
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(
