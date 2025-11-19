@@ -25,6 +25,13 @@ from app.models.schemas.vacancy import (
     VacancySearchParams,
     VacancyRequirementsUpdate,
 )
+from app.models.schemas.scoring import (
+    CandidateVacancyScore,
+    MatchingResult,
+    MatchingListResponse,
+    MatchingParams,
+    ScoringWeights,
+)
 
 __all__ = [
     "JobTitleCreate",
@@ -54,4 +61,9 @@ __all__ = [
     "VacancyListResponse",
     "VacancySearchParams",
     "VacancyRequirementsUpdate",
+    "CandidateVacancyScore",
+    "MatchingResult",
+    "MatchingListResponse",
+    "MatchingParams",
+    "ScoringWeights",
 ]
