@@ -21,6 +21,7 @@ import {
   ArrowLeft,
   TrendingUp,
   Award,
+  Sparkles,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -82,9 +83,17 @@ export default function VacancyDetailPage() {
               </p>
             </div>
           </div>
-          <Badge variant={vacancy.status === 'active' ? 'success' : 'neutral'} size="lg">
-            {vacancy.status === 'active' ? 'Активна' : vacancy.status}
-          </Badge>
+          <div className="flex flex-col items-end space-y-2">
+            <Badge variant={vacancy.status === 'active' ? 'success' : 'neutral'} size="lg">
+              {vacancy.status === 'active' ? 'Активна' : vacancy.status}
+            </Badge>
+            <Link href={`/vacancies/${vacancyId}/candidates`}>
+              <button className="flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl">
+                <Sparkles className="h-4 w-4 mr-2" />
+                AI Подбор
+              </button>
+            </Link>
+          </div>
         </div>
       </Card>
 
