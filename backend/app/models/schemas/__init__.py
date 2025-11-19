@@ -17,6 +17,14 @@ from app.models.schemas.workplace import (
     WorkplaceResponse,
     WorkplaceListResponse,
 )
+from app.models.schemas.vacancy import (
+    VacancyCreate,
+    VacancyUpdate,
+    VacancyResponse,
+    VacancyListResponse,
+    VacancySearchParams,
+    VacancyRequirementsUpdate,
+)
 
 __all__ = [
     "JobTitleCreate",
@@ -40,4 +48,10 @@ __all__ = [
     "WorkplaceUpdate",
     "WorkplaceResponse",
     "WorkplaceListResponse",
+    "VacancyCreate",
+    "VacancyUpdate",
+    "VacancyResponse",
+    "VacancyListResponse",
+    "VacancySearchParams",
+    "VacancyRequirementsUpdate",
 ]
