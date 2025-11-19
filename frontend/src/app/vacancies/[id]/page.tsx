@@ -1,5 +1,5 @@
 /**
- * Vacancy detail page with matching candidates
+ * Vacancy detail page with matching candidates - Modern redesign
  */
 'use client';
 
@@ -20,7 +20,13 @@ import {
   Loader2,
   ArrowLeft,
   TrendingUp,
+  Award,
 } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { MatchCard } from '@/components/ui/MatchCard';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { SkeletonMatchCard } from '@/components/ui/Skeleton';
 
 export default function VacancyDetailPage() {
   const params = useParams();
@@ -35,10 +41,10 @@ export default function VacancyDetailPage() {
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <div className="text-red-600 text-lg">Ошибка загрузки вакансии</div>
+      <Card variant="elevated" className="text-center">
+        <div className="text-red-600 text-lg font-semibold">Ошибка загрузки вакансии</div>
         <p className="text-gray-600 mt-2">{error.message}</p>
-      </div>
+      </Card>
     );
   }
 
@@ -50,118 +56,84 @@ export default function VacancyDetailPage() {
     );
   }
 
-  const getMatchQualityColor = (quality: string) => {
-    switch (quality) {
-      case 'excellent':
-        return 'bg-green-100 text-green-800';
-      case 'good':
-        return 'bg-blue-100 text-blue-800';
-      case 'fair':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getMatchQualityLabel = (quality: string) => {
-    switch (quality) {
-      case 'excellent':
-        return 'Отлично';
-      case 'good':
-        return 'Хорошо';
-      case 'fair':
-        return 'Приемлемо';
-      case 'poor':
-        return 'Слабо';
-      default:
-        return quality;
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Back button */}
       <Link
         href="/vacancies"
-        className="inline-flex items-center text-blue-600 hover:text-blue-700"
+        className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Назад к списку
       </Link>
 
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <Card variant="glass" className="animate-fade-in">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-4">
-            <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
-              <Briefcase className="h-8 w-8 text-green-600" />
+            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
+              <Briefcase className="h-10 w-10 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{vacancy.position_name}</h1>
-              <p className="text-lg text-gray-600 mt-1 flex items-center">
-                <Building2 className="h-4 w-4 mr-2" />
+              <h1 className="text-4xl font-bold gradient-text">{vacancy.position_name}</h1>
+              <p className="text-xl text-gray-600 mt-2 flex items-center">
+                <Building2 className="h-5 w-5 mr-2" />
                 {vacancy.company_name}
               </p>
             </div>
           </div>
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              vacancy.status === 'active'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-gray-100 text-gray-800'
-            }`}
-          >
+          <Badge variant={vacancy.status === 'active' ? 'success' : 'neutral'} size="lg">
             {vacancy.status === 'active' ? 'Активна' : vacancy.status}
-          </span>
+          </Badge>
         </div>
-      </div>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column - Main info */}
         <div className="lg:col-span-2 space-y-6">
           {/* Description */}
           {vacancy.description && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card variant="elevated" hover className="animate-slide-up">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Описание</h2>
-              <p className="text-gray-700 whitespace-pre-wrap">{vacancy.description}</p>
-            </div>
+              <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{vacancy.description}</p>
+            </Card>
           )}
 
           {/* Responsibilities */}
           {vacancy.responsibilities && vacancy.responsibilities.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card variant="elevated" hover className="animate-slide-up" style={{ animationDelay: '100ms' }}>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Обязанности</h2>
-              <ul className="space-y-2">
+              <ul className="space-y-2.5">
                 {vacancy.responsibilities.map((resp, index) => (
                   <li key={index} className="flex items-start text-gray-700">
-                    <span className="text-blue-600 mr-2">•</span>
-                    {resp}
+                    <span className="text-blue-600 mr-3 font-bold">•</span>
+                    <span>{resp}</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </Card>
           )}
 
           {/* Requirements */}
           {vacancy.requirements && vacancy.requirements.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card variant="elevated" hover className="animate-slide-up" style={{ animationDelay: '200ms' }}>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Требования</h2>
               <div className="space-y-4">
                 {/* Required */}
                 {vacancy.requirements.filter(r => r.importance === 'required').length > 0 && (
                   <div>
-                    <h3 className="text-sm font-medium text-red-700 mb-2">Обязательные:</h3>
+                    <h3 className="text-sm font-semibold text-red-700 mb-3 flex items-center">
+                      <Award className="h-4 w-4 mr-2" />
+                      Обязательные:
+                    </h3>
                     <div className="flex flex-wrap gap-2">
                       {vacancy.requirements
                         .filter(r => r.importance === 'required')
                         .map((req) => (
-                          <span
-                            key={req.id}
-                            className="px-3 py-1.5 bg-red-50 text-red-700 rounded-md text-sm"
-                          >
+                          <Badge key={req.id} variant="danger" size="md">
                             {req.technology?.name || req.technology_id}
                             {req.min_experience_years && ` (${req.min_experience_years}+ лет)`}
-                          </span>
+                          </Badge>
                         ))}
                     </div>
                   </div>
@@ -170,17 +142,14 @@ export default function VacancyDetailPage() {
                 {/* Nice to have */}
                 {vacancy.requirements.filter(r => r.importance === 'nice_to_have').length > 0 && (
                   <div>
-                    <h3 className="text-sm font-medium text-blue-700 mb-2">Желательно:</h3>
+                    <h3 className="text-sm font-semibold text-blue-700 mb-3">Желательно:</h3>
                     <div className="flex flex-wrap gap-2">
                       {vacancy.requirements
                         .filter(r => r.importance === 'nice_to_have')
                         .map((req) => (
-                          <span
-                            key={req.id}
-                            className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-md text-sm"
-                          >
+                          <Badge key={req.id} variant="info" size="md">
                             {req.technology?.name || req.technology_id}
-                          </span>
+                          </Badge>
                         ))}
                     </div>
                   </div>
@@ -189,28 +158,25 @@ export default function VacancyDetailPage() {
                 {/* Plus */}
                 {vacancy.requirements.filter(r => r.importance === 'plus').length > 0 && (
                   <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">Будет плюсом:</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">Будет плюсом:</h3>
                     <div className="flex flex-wrap gap-2">
                       {vacancy.requirements
                         .filter(r => r.importance === 'plus')
                         .map((req) => (
-                          <span
-                            key={req.id}
-                            className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md text-sm"
-                          >
+                          <Badge key={req.id} variant="neutral" size="md">
                             {req.technology?.name || req.technology_id}
-                          </span>
+                          </Badge>
                         ))}
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Languages */}
           {vacancy.language_requirements && vacancy.language_requirements.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card variant="elevated" hover className="animate-slide-up" style={{ animationDelay: '300ms' }}>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Требования к языкам</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {vacancy.language_requirements.map((lang, index) => (
@@ -222,7 +188,7 @@ export default function VacancyDetailPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
         </div>
 
@@ -230,89 +196,102 @@ export default function VacancyDetailPage() {
         <div className="space-y-6">
           {/* Salary */}
           {vacancy.salary_min && vacancy.salary_max && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card variant="gradient" className="animate-slide-up">
               <div className="flex items-center space-x-3 mb-4">
-                <DollarSign className="h-5 w-5 text-gray-400" />
+                <DollarSign className="h-5 w-5 text-green-600" />
                 <h2 className="text-lg font-semibold text-gray-900">Зарплата</h2>
               </div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-3xl font-bold text-green-600">
                 {vacancy.salary_min.toLocaleString()} - {vacancy.salary_max.toLocaleString()}
               </div>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 mt-2">
                 {vacancy.salary_currency} / {vacancy.salary_period === 'month' ? 'месяц' : vacancy.salary_period}
               </p>
               <p className="text-sm text-gray-600">
                 {vacancy.salary_type === 'gross' ? 'До вычета налогов' : 'На руки'}
               </p>
               {vacancy.salary_negotiable && (
-                <p className="text-sm text-blue-600 mt-2">Обсуждаемо</p>
+                <Badge variant="info" size="sm" className="mt-3">
+                  Обсуждаемо
+                </Badge>
               )}
-            </div>
+            </Card>
           )}
 
           {/* Experience */}
           {(vacancy.min_experience_years || vacancy.max_experience_years) && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card variant="elevated" hover className="animate-slide-up" style={{ animationDelay: '100ms' }}>
               <div className="flex items-center space-x-3 mb-4">
-                <Calendar className="h-5 w-5 text-gray-400" />
+                <Calendar className="h-5 w-5 text-purple-600" />
                 <h2 className="text-lg font-semibold text-gray-900">Опыт работы</h2>
               </div>
-              <div className="text-gray-900">
-                {vacancy.min_experience_years && `От ${vacancy.min_experience_years}`}
-                {vacancy.min_experience_years && vacancy.max_experience_years && ' до '}
+              <div className="text-2xl font-bold text-purple-600">
+                {vacancy.min_experience_years && `${vacancy.min_experience_years}`}
+                {vacancy.min_experience_years && vacancy.max_experience_years && ' - '}
                 {vacancy.max_experience_years && `${vacancy.max_experience_years}`} лет
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Locations */}
           {vacancy.locations && vacancy.locations.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card variant="elevated" hover className="animate-slide-up" style={{ animationDelay: '200ms' }}>
               <div className="flex items-center space-x-3 mb-4">
-                <MapPin className="h-5 w-5 text-gray-400" />
+                <MapPin className="h-5 w-5 text-orange-600" />
                 <h2 className="text-lg font-semibold text-gray-900">Локации</h2>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {vacancy.locations.map((location, index) => (
-                  <div key={index} className="text-gray-700">
-                    <div className="font-medium">
+                  <div key={index}>
+                    <div className="font-medium text-gray-900">
                       {location.city || location.country || 'Remote'}
                     </div>
                     {location.remote && (
-                      <div className="text-sm text-blue-600">Возможна удаленная работа</div>
+                      <Badge variant="success" size="sm" className="mt-1">
+                        Возможна удаленная работа
+                      </Badge>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Grade */}
           {vacancy.grade && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <Card variant="elevated" hover className="animate-slide-up" style={{ animationDelay: '300ms' }}>
               <div className="flex items-center space-x-3 mb-4">
-                <Target className="h-5 w-5 text-gray-400" />
+                <Target className="h-5 w-5 text-blue-600" />
                 <h2 className="text-lg font-semibold text-gray-900">Уровень</h2>
               </div>
-              <div className="text-lg font-medium text-gray-900">{vacancy.grade}</div>
-            </div>
+              <Badge variant="primary" size="lg">
+                {vacancy.grade}
+              </Badge>
+            </Card>
           )}
         </div>
       </div>
 
       {/* Matching Candidates */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <Card variant="elevated" className="animate-scale-in" style={{ animationDelay: '400ms' }}>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <Users className="h-6 w-6 text-green-600" />
-            <h2 className="text-2xl font-semibold text-gray-900">Подходящие кандидаты</h2>
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+              <Users className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Подходящие кандидаты</h2>
+              <p className="text-sm text-gray-600">
+                Найдено {matches?.total || 0} совпадений
+              </p>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
-            <label className="text-sm text-gray-600">Минимальный скор:</label>
+            <label className="text-sm font-medium text-gray-600">Минимальный скор:</label>
             <select
               value={minScore}
               onChange={(e) => setMinScore(Number(e.target.value))}
-              className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+              className="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             >
               <option value="0">Все</option>
               <option value="50">50+</option>
@@ -323,109 +302,34 @@ export default function VacancyDetailPage() {
         </div>
 
         {matchesLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          <div className="space-y-4">
+            <SkeletonMatchCard />
+            <SkeletonMatchCard />
           </div>
         ) : matches && matches.items.length > 0 ? (
           <div className="space-y-4">
             {matches.items.map((match) => (
-              <div
+              <MatchCard
                 key={match.candidate_id}
-                className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <Link
-                      href={`/candidates/${match.candidate_id}`}
-                      className="text-lg font-semibold text-gray-900 hover:text-blue-600"
-                    >
-                      {match.candidate?.full_name}
-                    </Link>
-                    <p className="text-gray-600">
-                      {match.candidate?.grade} • {match.candidate?.experience_months && Math.floor(match.candidate.experience_months / 12)} лет опыта
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-blue-600">
-                      {match.score.total_score.toFixed(1)}
-                    </div>
-                    <span
-                      className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getMatchQualityColor(
-                        match.score.match_quality
-                      )}`}
-                    >
-                      {getMatchQualityLabel(match.score.match_quality)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Score breakdown */}
-                <div className="grid grid-cols-4 gap-2 mb-3">
-                  <div className="text-center">
-                    <div className="text-sm font-semibold text-gray-900">
-                      {match.score.breakdown.technologies.score.toFixed(0)}%
-                    </div>
-                    <div className="text-xs text-gray-600">Tech</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-semibold text-gray-900">
-                      {match.score.breakdown.experience.score.toFixed(0)}%
-                    </div>
-                    <div className="text-xs text-gray-600">Exp</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-semibold text-gray-900">
-                      {match.score.breakdown.skills.score.toFixed(0)}%
-                    </div>
-                    <div className="text-xs text-gray-600">Skills</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-semibold text-gray-900">
-                      {match.score.confidence_level.toFixed(0)}%
-                    </div>
-                    <div className="text-xs text-gray-600">Conf</div>
-                  </div>
-                </div>
-
-                {/* Highlights */}
-                {match.highlights && match.highlights.length > 0 && (
-                  <div className="mb-2">
-                    <div className="text-sm font-medium text-green-700 mb-1">✓ Сильные стороны:</div>
-                    <ul className="space-y-1">
-                      {match.highlights.slice(0, 3).map((highlight, index) => (
-                        <li key={index} className="text-sm text-gray-600 pl-4">
-                          • {highlight}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Concerns */}
-                {match.concerns && match.concerns.length > 0 && (
-                  <div>
-                    <div className="text-sm font-medium text-orange-700 mb-1">⚠ Зоны внимания:</div>
-                    <ul className="space-y-1">
-                      {match.concerns.slice(0, 2).map((concern, index) => (
-                        <li key={index} className="text-sm text-gray-600 pl-4">
-                          • {concern}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
+                type="candidate"
+                id={match.candidate_id}
+                title={match.candidate?.full_name || 'Кандидат'}
+                subtitle={`${match.candidate?.grade || 'N/A'} • ${match.candidate?.experience_months ? Math.floor(match.candidate.experience_months / 12) : 0} лет опыта`}
+                score={match.score}
+                highlights={match.highlights}
+                concerns={match.concerns}
+                showBreakdown={false}
+              />
             ))}
           </div>
         ) : (
-          <div className="text-center py-8">
-            <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-600">
-              Подходящие кандидаты не найдены со скором выше {minScore}
-            </p>
-          </div>
+          <EmptyState
+            icon={TrendingUp}
+            title="Совпадения не найдены"
+            description={`Подходящие кандидаты не найдены со скором выше ${minScore}. Попробуйте снизить порог или обновите требования вакансии.`}
+          />
         )}
-      </div>
+      </Card>
     </div>
   );
 }
