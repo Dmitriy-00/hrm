@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import job_titles, technologies, standards, industries, candidates, workplaces, vacancies, matching
+from app.api.v1.endpoints import job_titles, technologies, standards, industries, candidates, workplaces, vacancies, matching, analytics
 
 api_router = APIRouter()
 
@@ -19,3 +19,6 @@ api_router.include_router(vacancies.router, prefix="/vacancies", tags=["Vacancie
 
 # Matching/Scoring
 api_router.include_router(matching.router, prefix="/matching", tags=["Matching"])
+
+# Analytics
+api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])

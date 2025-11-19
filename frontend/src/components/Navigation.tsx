@@ -5,10 +5,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, Briefcase, TrendingUp, Database } from 'lucide-react';
+import { Users, Briefcase, TrendingUp, Database, BarChart3 } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: 'Главная', icon: TrendingUp },
+  { href: '/dashboard', label: 'Аналитика', icon: BarChart3 },
   { href: '/candidates', label: 'Кандидаты', icon: Users },
   { href: '/vacancies', label: 'Вакансии', icon: Briefcase },
   { href: '/ontology', label: 'Онтология', icon: Database },
